@@ -8,6 +8,8 @@ pub enum Token {
 }
 
 pub fn tokenize(string: &str) -> Vec<Token> {
+	let string = string.trim();
+
 	let mut v = Vec::new();
 	let mut s = String::new();
 
@@ -24,7 +26,7 @@ pub fn tokenize(string: &str) -> Vec<Token> {
 				'.' => Token::Dot,
 				'(' => Token::LeftParen,
 				')' => Token::RightParen,
-				_ => panic!("wrong symbol")
+				c => panic!("wrong symbol: {:?} ", c)
 			});
 		}
 	}

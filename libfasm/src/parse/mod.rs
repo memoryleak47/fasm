@@ -35,7 +35,7 @@ fn eat_term(tokens: &[Token]) -> (&[Token], Term) {
 }
 
 impl Term {
-	pub fn parse(s: &str) -> Term {
+	pub fn parse_termstr(s: &str) -> Term {
 		let tokens = tokenize(s);
 		if let ([], term) = eat_term(&tokens[..]) {
 			return term;
