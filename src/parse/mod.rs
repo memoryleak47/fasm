@@ -30,7 +30,6 @@ fn eat_term(tokens: &[Token]) -> (&[Token], Term) {
 		Token::LeftParen => eat_application(tokens),
 		Token::Lambda => eat_abstraction(tokens),
 		Token::Var(ref x) => (&tokens[1..], Term::Var(x.clone())),
-		Token::Dollar => (&tokens[1..], Term::Input),
 		_ => panic!("syntax error")
 	}
 }
