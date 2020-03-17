@@ -14,9 +14,11 @@ fn main() {
 		.to_string();
 	dbg!(&tmpdir);
 
-	Command::new("cp").arg("-r").arg("libfasm").arg(&tmpdir).output().unwrap();
-	Command::new("cp").arg("-r").arg("fasmexec").arg(&tmpdir).output().unwrap();
-	Command::new("cp").arg(code_file).arg(&format!("{}/src/code.fasm", &tmpdir)).output().unwrap();
-	Command::new("cargo").arg("b").arg("--manifest-path").arg(format!("{}/fasmexec", &tmpdir)).output().unwrap();
-	Command::new("cp").arg(format!("{}/fasmexec/target/debug/fasmexec", &tmpdir)).arg("a.out").output().unwrap();
+	let f = |c: &mut Command| println!("{}", String::from_utf8(c.output().unwrap().stderr).unwrap());
+
+	f(Command::new("cp").arg("-r").arg("libfasm").arg(&tmpdir));
+	f(Command::new("cp").arg("-r").arg("fasmexec").arg(&tmpdir));
+	f(Command::new("cp").arg(code_file).arg(&format!("{}/fasmexec/src/code.fasm", &tmpdir)));
+	f(Command::new("cargo").arg("b").arg("--manifest-path").arg(format!("{}/fasmexec/Cargo.toml", &tmpdir)));
+	f(Command::new("cp").arg(format!("{}/fasmexec/target/debug/fasmexec", &tmpdir)).arg("a.out"));
 }

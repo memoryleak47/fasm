@@ -31,7 +31,7 @@ impl Term {
 
 	fn insert(&self, v: &str, t: &Term) -> Term {
 		match self {
-			Term::Var(x) if x.as_str() == v => Term::Var(v.to_string()),
+			Term::Var(x) if x.as_str() == v => t.clone(),
 			Term::Var(x) => Term::Var(x.to_string()),
 			Term::Abstraction(x, y) if x.as_str() == v => Term::Abstraction(x.to_string(), y.clone()),
 			Term::Abstraction(x, y) => Term::Abstraction(x.to_string(), Box::new(y.insert(v, t))),
@@ -63,4 +63,18 @@ impl Term {
 	pub fn to_string(&self) -> String {
 		panic!("TODO")
 	}
+}
+
+#[test]
+fn test_to_termstring() {
+	let i = Term::Abstraction("x".to_string(), Box::new(Term::Var("x".to_string())));
+	assert_eq!("\\x.x", &i.to_termstring());
+}
+
+#[test]
+fn test_execute() {
+	let ix = Term::Abstraction("x".to_string(), Box::new(Term::Var("x".to_string())));
+	let iy = Term::Abstraction("y".to_string(), Box::new(Term::Var("y".to_string())));
+	assert_eq!(ix, Term::Application(Box::new(ix.clone()), Box::new(ix.clone())).execute());
+	assert_eq!(iy, Term::Application(Box::new(ix.clone()), Box::new(iy.clone())).execute());
 }
