@@ -5,6 +5,7 @@ pub enum Token {
 	Dot,
 	LeftParen,
 	RightParen,
+	Dollar,
 }
 
 pub fn tokenize(string: &str) -> Vec<Token> {
@@ -24,6 +25,7 @@ pub fn tokenize(string: &str) -> Vec<Token> {
 				'.' => Token::Dot,
 				'(' => Token::LeftParen,
 				')' => Token::RightParen,
+				'$' => Token::Dollar,
 				_ => panic!("wrong symbol")
 			});
 		}
