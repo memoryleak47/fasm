@@ -1,3 +1,8 @@
+mod term;
+mod parse;
+
+use term::Term;
+
 fn main() {
-    println!("Hello, world!");
+	dbg!(Term::parse("\\x.x"));
 }
