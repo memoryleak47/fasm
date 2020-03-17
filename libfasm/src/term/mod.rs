@@ -60,8 +60,41 @@ impl Term {
 		}
 	}
 
+	fn to_num(&self) -> u8 {
+		if let Term::Abstraction(f, tmp1) = self {
+		if let Term::Abstraction(x, term_box) = &**tmp1 {
+			let mut term: &Term = &**term_box;
+			let mut n = 0;
+			while let Term::Application(v, term2) = term {
+				if **v == Term::Var(f.to_string()) {
+					n += 1;
+					term = &*term2;
+				} else {
+					panic!("malformed non-number term")
+				}
+			}
+			if *term == Term::Var(x.to_string()) {
+				return n;
+			}
+		}}
+		panic!("malformed non-number term")
+	}
+
 	pub fn to_string(&self) -> String {
-		panic!("TODO")
+		// TODO make this readable for humans
+		if let Term::Abstraction(v, tmp1) = self {
+			if let Term::Application(tmp2, string_box) = &**tmp1 {
+			if let Term::Application(v_box, char_box) = &**tmp2 {
+			if Term::Var(v.to_string()) == **v_box {
+				return format!("{}{}", char::from((&**char_box).to_num()), (**string_box).to_string());
+			}}}
+
+			if let Term::Abstraction(v2, tmp2) = &**tmp1 { // parse c0
+			if Term::Var(v2.to_string()) == **tmp2 {
+				return String::new();
+			}}
+		}
+		panic!("malformed non-string term")
 	}
 }
 
@@ -77,4 +110,16 @@ fn test_execute() {
 	let iy = Term::Abstraction("y".to_string(), Box::new(Term::Var("y".to_string())));
 	assert_eq!(ix, Term::Application(Box::new(ix.clone()), Box::new(ix.clone())).execute());
 	assert_eq!(iy, Term::Application(Box::new(ix.clone()), Box::new(iy.clone())).execute());
+}
+
+#[test]
+fn test_numbers() {
+	let n = 5;
+	assert_eq!(Term::num(n).to_num(), n);
+}
+
+#[test]
+fn test_strings() {
+	let s = "woo";
+	assert_eq!(Term::parse_str(s).to_string(), s);
 }

@@ -8,5 +8,5 @@ fn main() {
 	let n = Term::parse_str(&env::args().nth(1).expect("missing argument"));
 	let t = Term::Application(Box::new(m), Box::new(n));
 	let t = t.execute();
-	println!("{}", t.to_termstring()); // TODO change this to to_string() later
+	println!("{}", t.to_string());
 }
