@@ -1,3 +1,5 @@
+#![feature(str_strip)]
+
 use std::collections::HashMap;
 
 #[derive(Clone, Hash, PartialEq, Eq)]
@@ -36,7 +38,6 @@ enum Token {
 	Comma,
 	LeftParen,
 	RightParen,
-	Equals,
 }
 
 fn split_at_char(s: &str, c: char) -> (&str, &str) {
@@ -77,8 +78,18 @@ fn tokenize(s: &str) -> Vec<Token> {
 	t
 }
 
+fn decay_term_to_pattern(t: Term) -> Pattern {
+	match t {
+		Term::Atom(a) => Pattern::Atom(a),
+		Term::Var(v) => Pattern::Var(v),
+		Term::Tuple(vec) => Pattern::Tuple(vec.into_iter().map(decay_term_to_pattern).collect()),
+		Term::Call(..) => panic!("patterns can't contain calls!"),
+	}
+}
+
 fn parse_pattern(t: Vec<Token>) -> Pattern {
-	unimplemented!()
+	let term = parse_term(t);
+	decay_term_to_pattern(term)
 }
 
 fn parse_term(t: Vec<Token>) -> Term {
@@ -103,6 +114,11 @@ fn parse_line(s: &str) -> (Function, Pattern, Term) {
 
 impl Program {
 	pub fn parse(s: &str) -> Program {
+		let s = match s.strip_suffix(';') { // this allows trailing ';'
+			Some(x) => x,
+			None => s,
+		};
+
 		let mut program = Program { map: HashMap::new() };
 		for line in s.split(';') {
 			let (function, pattern, term) = parse_line(line);
