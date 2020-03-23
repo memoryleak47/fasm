@@ -31,6 +31,7 @@ pub struct Program {
 	map: HashMap<Function, Vec<(Pattern, Term)>>,
 }
 
+#[derive(PartialEq, Eq)]
 enum Token {
 	Atom(Atom),
 	Var(Var),
@@ -92,8 +93,42 @@ fn parse_pattern(t: Vec<Token>) -> Pattern {
 	decay_term_to_pattern(term)
 }
 
-fn parse_term(t: Vec<Token>) -> Term {
-	unimplemented!()
+fn parse_term(mut t: Vec<Token>) -> Term {
+	if let &[ref x] = &t[..] {
+		return match x {
+			Token::Atom(y) => Term::Atom(y.clone()),
+			Token::Var(y) => Term::Var(y.clone()),
+			_ => panic!("error: malformed term"),
+		};
+	}
+	let x = t.remove(0);
+	if let Token::Function(f) = x {
+		return Term::Call(f, Box::new(parse_term(t)));
+	}
+	if x != Token::LeftParen {
+		panic!("error: malformed term");
+	}
+
+	// tuple parsing
+	let mut depth = 1;
+	let mut tmp = Vec::new();
+	let mut subterms = Vec::new();
+	while !t.is_empty() {
+		let x = t.remove(0);
+		if x == Token::LeftParen { depth += 1; }
+		if x == Token::RightParen { depth -= 1; }
+		if depth == 0 && x == Token::RightParen {
+			assert!(t.is_empty());
+			subterms.push(parse_term(tmp));
+			return Term::Tuple(subterms);
+		} else if depth == 1 && x == Token::Comma {
+			subterms.push(parse_term(tmp));
+			tmp = Vec::new();
+		} else {
+			tmp.push(x);
+		}
+	}
+	panic!("error: malformed term")
 }
 
 fn parse_line(s: &str) -> (Function, Pattern, Term) {
@@ -126,4 +161,9 @@ impl Program {
 		}
 		program
 	}
+}
+
+#[test]
+fn test_() {
+	Program::parse("main $x = $x; main :x = :y;");
 }
